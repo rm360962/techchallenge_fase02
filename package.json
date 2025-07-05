@@ -1,0 +1,27 @@
+{
+  "name": "techchallenge_fase02",
+  "version": "1.0.0",
+  "description": "Projeto desenvolvido para segundo tech challege",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rm360962/techchallenge_fase02.git"
+  },
+  "author": "Henrique",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rm360962/techchallenge_fase02/issues"
+  },
+  "homepage": "https://github.com/rm360962/techchallenge_fase02#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
