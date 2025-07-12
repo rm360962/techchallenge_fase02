@@ -7,7 +7,7 @@ export class PostagemService {
     async buscar() {
         try {
             const postagens = await this.postagemRepository.buscarPostagem();
-
+            
             return {
                 status: 200,
                 dados: postagens,
@@ -47,6 +47,7 @@ export class PostagemService {
     };
 
     async cadastrar(postagem) {
+        console.log(postagem);
         try {
             const idCadastrado = await this.postagemRepository.cadastrarPostagem(postagem);
 
@@ -58,7 +59,7 @@ export class PostagemService {
                 },
             };
         } catch (erro) {
-            console.log('[POSTAGEM SERVICE] Erro ao buscar uma postagem', erro);
+            console.log('[POSTAGEM SERVICE] Erro ao cadastrar uma postagem', erro);
 
             return {
                 status: 500,
@@ -78,7 +79,7 @@ export class PostagemService {
                 dados: postagem,
             };
         } catch (erro) {
-            console.log('[POSTAGEM SERVICE] Erro ao buscar uma postagem', erro);
+            console.log('[POSTAGEM SERVICE] Erro ao editar uma postagem', erro);
 
             return {
                 status: 500,
@@ -98,7 +99,7 @@ export class PostagemService {
                 dados: postagens,
             };
         } catch (erro) {
-            console.log('[POSTAGEM SERVICE] Erro ao buscar uma postagem', erro);
+            console.log('[POSTAGEM SERVICE] Erro ao remover uma postagem', erro);
 
             return {
                 status: 500,
@@ -118,7 +119,7 @@ export class PostagemService {
                 dados: postagens,
             };
         } catch (erro) {
-            console.log('[POSTAGEM SERVICE] Erro ao buscar uma postagem', erro);
+            console.log('[POSTAGEM SERVICE] Erro ao buscar postagem por filtros', erro);
 
             return {
                 status: 500,

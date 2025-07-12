@@ -6,12 +6,11 @@ export class PostagemController {
 
     buscarPostagens = async (req, res) => {
         const { status, dados: postagens} = await this.postagemService.buscar();
-
         return res.status(status).send(postagens);
     };
 
     buscarPostagemPorId = async (req, res) => {
-        const id = req.query;
+        const id = parseInt(req.params.id, 10);;
         const { status, dados: postagem } = await this.postagemService.buscarPorId(id);
 
         return res.status(status).send(postagem);
