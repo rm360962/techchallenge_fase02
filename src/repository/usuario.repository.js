@@ -1,10 +1,11 @@
-import { poolConexoes } from "../database/database";
+import { poolConexoes } from "../database/database.js";
 
 export class UsuarioRepository {
 
     async buscarUsuarios(filtros) {
-        console.log('[USUARIO REPOSITORY] Buscando usuarios: ', JSON.stringify(filtros));
-        const sql = `
+        console.log('[USUARIO REPOSITORY] Buscando usuario:', JSON.stringify(filtros));
+
+        let sql = `
         SELECT 
             u.id AS "id",
             u.nome AS "nome",
@@ -20,7 +21,35 @@ export class UsuarioRepository {
         WHERE 1=1
         `;
 
-        const { rows: resultado } = await poolConexoes.query(sql);
+        let indiceParametro = 1;
+        const valores = [];
+
+        if (filtros.id) {
+            sql += `AND u.id = $${indiceParametro++}`;
+            valores.push(filtros.id);
+        } else {
+            if (filtros.nome) {
+                sql += `AND LOWER(u.nome) LIKE $${indiceParametro++}`;
+                valores.push(`%${filtros.nome.toLowerCase()}%`);
+            }
+
+            if (filtros.email && !filtros.validacaoEmail) {
+                sql += `AND LOWER(u.email) LIKE $${indiceParametro++}`;
+                valores.push(`%${filtros.email.toLowerCase()}%`);
+            }
+
+            if (filtros.email && filtros.validacaoEmail) {
+                sql += `AND LOWER(u.email) = $${indiceParametro++}`;
+                valores.push(filtros.email);
+            }
+
+            if (filtros.categoriaId) {
+                sql += `AND u.categoria_id = $${indiceParametro++}`;
+                valores.push(filtros.categoriaId);
+            }
+        }
+
+        const { rows: resultado } = await poolConexoes.query(sql, valores);
 
         const resultadoNormalizado = resultado.map((item) => {
             return {
@@ -38,7 +67,10 @@ export class UsuarioRepository {
             };
         });
 
-        return resultadoNormalizado;
+        return {
+            possuiResultado: resultadoNormalizado.length > 0,
+            resultado: filtros.id != null && resultadoNormalizado.length > 0 ? resultadoNormalizado[0] : resultadoNormalizado,
+        };
     }
 
     async cadastrarUsuario(usuario) {
@@ -94,6 +126,7 @@ export class UsuarioRepository {
             usuario.senha ?? null,
             usuario.categoriaId ?? null,
             usuario.usuarioInclusao,
+            usuario.id,
         ]);
 
         return rowCount > 0;
