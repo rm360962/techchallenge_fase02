@@ -28,4 +28,10 @@ export class UsuarioController {
         const { status, resposta } = await this.usuarioService.remover(id);
         return res.status(status).send(resposta);
     };
+
+    logarUsuario = async (req, res) => {
+        const autenticacaoBase64 = req.headers.authorization;
+        const { status, resposta } = await this.usuarioService.logarUsuario(autenticacaoBase64);
+        return res.status(status).send(resposta); 
+    };
 }

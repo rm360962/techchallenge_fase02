@@ -2,7 +2,7 @@ import { poolConexoes } from "../database/database.js";
 
 export class UsuarioRepository {
 
-    async buscarUsuarios(filtros) {
+    buscarUsuarios = async (filtros) => {
         console.log('[USUARIO REPOSITORY] Buscando usuario:', JSON.stringify(filtros));
 
         let sql = `
@@ -33,12 +33,12 @@ export class UsuarioRepository {
                 valores.push(`%${filtros.nome.toLowerCase()}%`);
             }
 
-            if (filtros.email && !filtros.validacaoEmail) {
+            if (filtros.email && !filtros.emailIgual) {
                 sql += `AND LOWER(u.email) LIKE $${indiceParametro++}`;
                 valores.push(`%${filtros.email.toLowerCase()}%`);
             }
 
-            if (filtros.email && filtros.validacaoEmail) {
+            if (filtros.email && filtros.emailIgual) {
                 sql += `AND LOWER(u.email) = $${indiceParametro++}`;
                 valores.push(filtros.email);
             }
@@ -69,11 +69,11 @@ export class UsuarioRepository {
 
         return {
             possuiResultado: resultadoNormalizado.length > 0,
-            resultado: filtros.id != null && resultadoNormalizado.length > 0 ? resultadoNormalizado[0] : resultadoNormalizado,
+            resultado: filtros.id || filtros.email != null && resultadoNormalizado.length > 0 ? resultadoNormalizado[0] : resultadoNormalizado,
         };
     }
 
-    async cadastrarUsuario(usuario) {
+    cadastrarUsuario = async (usuario) => {
         console.log('[USUARIO REPOSITORY] Cadastrando usuario: ', JSON.stringify(usuario));
         const sql = `
         INSERT INTO usuario (
@@ -106,7 +106,7 @@ export class UsuarioRepository {
         return resultado[0].id;
     }
 
-    async editarUsuario(usuario) {
+    editarUsuario = async (usuario) => {
         console.log('[USUARIO REPOSITORY] Editando usuario: ', JSON.stringify(usuario));
         const sql = `
         UPDATE usuario
@@ -132,14 +132,27 @@ export class UsuarioRepository {
         return rowCount > 0;
     }
 
-    async removerUsuario(id) {
+    removerUsuario = async (id) => {
         console.log('[USUARIO REPOSITORY] Deletando usuario com id: ', id);
         const sql = `
-            DELETE FROM USUARIO WHERE ID = $1
+            DELETE FROM usuario WHERE id = $1
         `;
 
         const { rowCount } = await poolConexoes.query(sql, [id]);
 
         return rowCount > 0;
+    }
+
+    buscarSenhaUsuarioPorEmail = async (email) => {
+        const sql = `
+            SELECT senha FROM usuario WHERE LOWER(email) = $1
+        `;
+
+        const { rows: resultado } = await poolConexoes.query(sql, [email]);
+
+        return {
+            possuiResultado: resultado.length > 0,
+            resultado: resultado.length > 0 ? resultado[0].senha : null,
+        };
     }
 }

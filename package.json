@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/rm360962/techchallenge_fase02#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
     "express": "^5.1.0",
     "pg": "^8.16.3"
