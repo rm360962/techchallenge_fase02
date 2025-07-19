@@ -1,6 +1,7 @@
 import { UsuarioRepository } from "../repository/usuario.repository.js";
 import { CategoriaUsuarioRepository } from "../repository/categoria.repository.js";
 import bcryptjs from "bcryptjs";
+import jwt from 'jsonwebtoken';
 
 export class UsuarioService {
 
@@ -158,7 +159,7 @@ export class UsuarioService {
 
             const { possuiResultado: usuarioEncontrado, resultado: hashSenha }
                 = await this.usuarioRepository.buscarSenhaUsuarioPorEmail(email);
-        
+
             if (!usuarioEncontrado) {
                 console.log(`[USUARIO SERVICE] E-mail: ${email} nao foi encontrado`);
                 return {
@@ -170,8 +171,8 @@ export class UsuarioService {
             }
 
             const senhaCorreta = await bcryptjs.compare(senha, hashSenha);
-            
-            if(!senhaCorreta) {
+
+            if (!senhaCorreta) {
                 console.log(`[USUARIO SERVICE] Senha invalida com e-mail: ${email}`);
                 return {
                     status: 401,
@@ -186,10 +187,18 @@ export class UsuarioService {
                 emailIgual: true,
             });
 
+            const token = jwt.sign({ 
+                id: usuario.id,
+                categoria: {
+                    id: usuario.categoria.id,
+                    nome: usuario.categoria.nome,
+                }, 
+            }, process.env.JWT_SECRET);
+
             return {
                 status: 200,
                 resposta: {
-                    token: '',
+                    token: token,
                     usuario: usuario,
                 },
             };
