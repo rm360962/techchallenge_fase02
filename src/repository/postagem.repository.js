@@ -2,26 +2,67 @@ import { poolConexoes } from "../database/database.js";
 
 export class PostagemRepository {
 
-    async buscarPostagem() {
-        const sql = `
+    buscarPostagens = async (filtros) => {
+        console.log('[POSTAGEM REPOSITORY] Buscando postagens: ', JSON.stringify(filtros));
+        let sql = `
         SELECT 
-            ID AS "id",
-            TITULO AS "titulo",
-            DESCRICAO AS "descricao",
-            USUARIO_ID AS "usuario_id",
-            TO_CHAR(DATA_INCLUSAO, 'DD/MM/YYYY') AS "data_inclusao",
-            USUARIO_INCLUSAO AS "usuario_inclusao",
-            TO_CHAR(DATA_ALTERACAO, 'DD/MM/YYYY') AS "data_alteracao",
-            USUARIO_ALTERACAO AS "usuario_alteracao"
-        FROM POSTAGEM
+            p.id AS "id",
+            p.titulo AS "titulo",
+            p.descricao AS "descricao",
+            p.usuario_id AS "usuario_id",
+            TO_CHAR(p.data_inclusao, 'DD/MM/YYYY') AS "data_inclusao",
+            p.usuario_inclusao AS "usuario_inclusao",
+            TO_CHAR(p.data_alteracao, 'DD/MM/YYYY') AS "data_alteracao",
+            p.usuario_alteracao AS "usuario_alteracao"
+        FROM postagem p
+        INNER JOIN usuario u ON u.id = p.usuario_id
+        WHERE 1=1
         `;
 
-        const { rows: resultado } = await poolConexoes.query(sql);
+        let indiceParametro = 1;
+        const valores = [];
 
-        return resultado;
+        if (filtros.id) {
+            sql += `AND p.id = $${indiceParametro++}`;
+            valores.push(filtros.id);
+        } else {
+            if (filtros.titulo) {
+                sql += ` AND p.titulo ILIKE $${indiceParametro++}`;
+                valores.push(`%${filtros.titulo}%`);
+            }
+
+            if (filtros.descricao) {
+                sql += ` AND p.descricao ILIKE $${indiceParametro++}`;
+                valores.push(`%${filtros.descricao}%`);
+            }
+
+            if (filtros.usuarioId) {
+                sql += ` AND u.id = $${indiceParametro++}`;
+                valores.push(filtros.usuarioId);
+            }
+
+            if (filtros.dataInclusaoInicio && !filtros.dataInclusaoFim) {
+                sql += ` AND p.data_inclusao >= $${indiceParametro}`;
+                valores.push(filtros.dataInclusaoInicio);
+            } else if (!filtros.dataInclusaoInicio && filtros.dataInclusaoFim) {
+                sql += ` AND p.data_inclusao <= $${indiceParametro}`;
+                valores.push(filtros.dataInclusaoFim);
+            } else if(filtros.dataInclusaoInicio && filtros.dataInclusaoFim) {
+                sql += ` AND p.data_inclusao BETWEEN $${indiceParametro} AND $${indiceParametro + 1}`;
+                valores.push(filtros.dataInclusaoInicio);
+                valores.push(filtros.dataInclusaoFim);
+            }
+        }
+
+        const { rows: resultado } = await poolConexoes.query(sql, valores);
+
+        return {
+            possuiResultado: resultado.length > 0,
+            resultado: resultado,
+        };
     };
 
-    async cadastrarPostagem(postagem) {
+    cadastrarPostagem = async (postagem) => {
         console.log('[POSTAGEM REPOSITORY] Cadastrando postagem', JSON.stringify(postagem));
 
         const sql = `
@@ -32,7 +73,7 @@ export class PostagemRepository {
             USUARIO_ID,
             USUARIO_INCLUSAO
         ) VALUES (
-        NEXTVAL('POSTAGEM_SEQ_ID'),
+            NEXTVAL('POSTAGEM_SEQ_ID'),
             $1, 
             $2,
             $3, 
@@ -48,9 +89,9 @@ export class PostagemRepository {
         ]);
 
         return resultado[0].id;
-    }
+    };
 
-    async editarPostagem(postagem) {
+    editarPostagem = async (postagem) => {
         const sql = `
         UPDATE POSTAGEM
         SET 
@@ -62,49 +103,24 @@ export class PostagemRepository {
         WHERE ID = $5;
         `;
 
-        const { rowCount } = await poolConexoes.query(sql,[
+        const { rowCount } = await poolConexoes.query(sql, [
             postagem.titulo ?? null,
             postagem.descricao ?? null,
             postagem.usuarioId ?? null,
             postagem.usuarioId,
-            postagem.id 
+            postagem.id
         ]);
 
         return rowCount > 0;
-    }
+    };
 
-    async removerPostagem(id) {
+    removerPostagem = async (id) => {
         const sql = `
-            DELETE FROM POSTAGEM WHERE ID = :id
+            DELETE FROM POSTAGEM WHERE ID = $1
         `;
 
-        const { rowCount } = await poolConexoes.query(sql, {
-            id: id,
-        });
+        const { rowCount } = await poolConexoes.query(sql, [id]);
 
         return rowCount > 0;
-    }   
-
-    async buscarPorFiltros(filtros) {
-        console.log('[POSTAGEM REPOSITORY] Buscando postagens por filtro:', JSON.stringify(filtros));
-        const { id } = filtros;
-        const sql = `
-        SELECT 
-            ID AS "id",
-            TITULO AS "titulo",
-            DESCRICAO AS "descricao",
-            USUARIO_ID AS "usuario_id",
-            DATA_INCLUSAO AS "data_inclusao",
-            USUARIO_INCLUSAO AS "usuario_inclusao",
-            DATA_ALTERACAO AS "data_alteracao",
-            USUARIO_ALTERACAO AS "usuario_alteracao"
-        FROM POSTAGEM
-        WHERE 1=1
-            ${id != null ? `AND ID = $1` : ''}
-        `;
-
-        const { rows: resultado } = await poolConexoes.query(sql, [ id ]);
-
-        return resultado;
-    }
+    };
 }

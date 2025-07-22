@@ -4,56 +4,56 @@ export class PostagemService {
 
     postagemRepository = new PostagemRepository();
 
-    async buscar() {
+    buscar = async () => {
         try {
-            const postagens = await this.postagemRepository.buscarPostagem();
-            
+            const { resultado: listaPostagens } = await this.postagemRepository.buscarPostagens({});
+
             return {
                 status: 200,
-                dados: postagens,
+                resposta: listaPostagens,
             };
         } catch (erro) {
             console.log('[POSTAGEM SERVICE] Erro ao buscar as postagens', erro);
 
             return {
                 status: 500,
-                dados: {
+                resposta: {
                     mensagem: "Erro durante a busca das postagens",
                 }
             };
         }
     };
 
-    async buscarPorId(id) {
+    buscarPorId = async (id) => {
         try {
-            const postagens = await this.postagemRepository.buscarPorFiltros({
-                id,
+            const { possuiResultado: encontrouRegistro, resultado: postagem } = await this.postagemRepository.buscarPostagens({
+                id: id
             });
 
             return {
                 status: 200,
-                dados: postagens[0],
+                resposta: encontrouRegistro ? postagem : {},
             };
         } catch (erro) {
             console.log('[POSTAGEM SERVICE] Erro ao buscar uma postagem', erro);
 
             return {
                 status: 500,
-                dados: {
+                resposta: {
                     mensagem: "Erro durante a busca da postagem",
                 }
             };
         }
     };
 
-    async cadastrar(postagem) {
+    cadastrar = async (postagem) => {
         console.log(postagem);
         try {
             const idCadastrado = await this.postagemRepository.cadastrarPostagem(postagem);
 
             return {
                 status: 201,
-                dados: {
+                resposta: {
                     id: idCadastrado,
                     mensagem: 'Postagem cadastrada com sucesso'
                 },
@@ -63,67 +63,71 @@ export class PostagemService {
 
             return {
                 status: 500,
-                dados: {
+                resposta: {
                     mensagem: "Erro durante a busca das postagens",
                 }
             };
         }
     };
 
-    async editar(id, postagem) {
+    editar = async (id, postagem) => {
         try {
             const sucesso = await this.postagemRepository.editarPostagem(id, postagem);
 
             return {
                 status: 200,
-                dados: postagem,
+                resposta: postagem,
             };
         } catch (erro) {
             console.log('[POSTAGEM SERVICE] Erro ao editar uma postagem', erro);
 
             return {
                 status: 500,
-                dados: {
+                resposta: {
                     mensagem: "Erro durante a busca das postagens",
                 }
             };
         }
     };
 
-    async remover(id) {
+    remover = async (id) => {
         try {
             const postagens = await this.postagemRepository.removerPostagem(id);
 
             return {
                 status: 200,
-                dados: postagens,
+                resposta: postagens,
             };
         } catch (erro) {
             console.log('[POSTAGEM SERVICE] Erro ao remover uma postagem', erro);
 
             return {
                 status: 500,
-                dados: {
+                resposta: {
                     mensagem: "Erro durante a busca das postagens",
                 }
             };
         }
     };
 
-    async buscarPorFiltros(dadosBusca) {
+    buscarPorFiltros = async (filtros) => {
         try {
-            const postagens = await this.postagemRepository.buscarPorFiltros(dadosBusca);
+            let { resultado: listaPostagens } = await this.postagemRepository.buscarPostagens(filtros);
 
-            return {
+            if(filtros.id) {
+                listaPostagens = listaPostagens ? [listaPostagens] : [];
+            }
+
+            return {    
                 status: 200,
-                dados: postagens,
+                resposta: listaPostagens,
             };
         } catch (erro) {
             console.log('[POSTAGEM SERVICE] Erro ao buscar postagem por filtros', erro);
 
             return {
                 status: 500,
-                dados: {
+                resposta: {
                     mensagem: "Erro durante a busca das postagens",
                 }
             };
