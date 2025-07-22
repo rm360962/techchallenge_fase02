@@ -1,21 +1,48 @@
 import { UsuarioService } from '../service/usuario.service.js';
+import { validationResult } from 'express-validator';
+import { mascaraValidacao } from '../util/mascaraValidacao.js';
+
 export class UsuarioController {
     
     usuarioService = new UsuarioService();
     
     buscarUsuarios = async (req, res) => {
+        const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
+
+        if(!errosRequisicao.isEmpty()) {
+            return res.status(422).send({
+                erros: errosRequisicao.array({ onlyFirstError: true})
+            });
+        }
+
         const filtros = req.query;
         const { status, resposta } = await this.usuarioService.buscar(filtros);
         return res.status(status).send(resposta);
     };
 
     cadastrarUsuario = async (req, res) => {
+         const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
+
+        if(!errosRequisicao.isEmpty()) {
+            return res.status(422).send({
+                erros: errosRequisicao.array({ onlyFirstError: true})
+            });
+        }
+
         const usuario = req.body;
         const { status, resposta } = await this.usuarioService.cadastrar(usuario);
         return res.status(status).send(resposta);
     };
 
     editarUsuario = async (req, res) => {
+         const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
+
+        if(!errosRequisicao.isEmpty()) {
+            return res.status(422).send({
+                erros: errosRequisicao.array({ onlyFirstError: true})
+            });
+        }
+
         const usuario = req.body;
         usuario.id = parseInt(req.params.id, 10);
 
