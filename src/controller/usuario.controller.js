@@ -30,6 +30,9 @@ export class UsuarioController {
         }
 
         const usuario = req.body;
+        usuario.usuarioInclusao = req.headers.usuarioEvento.login;
+
+        console.log(req.headers);
         const { status, resposta } = await this.usuarioService.cadastrar(usuario);
         return res.status(status).send(resposta);
     };
@@ -45,14 +48,20 @@ export class UsuarioController {
 
         const usuario = req.body;
         usuario.id = parseInt(req.params.id, 10);
+        usuario.usuarioAlteracao = req.headers.usuarioEvento.login;
 
         const { status, resposta } = await this.usuarioService.editar(usuario);
         return res.status(status).send(resposta);
     };
 
     removerUsuario = async (req, res) => {
-        const id = parseInt(req.params.id, 10);
-        const { status, resposta } = await this.usuarioService.remover(id);
+        const usuarioRemocao = {
+            id: parseInt(req.params.id, 10),
+            usuarioAlteracao:  req.headers.usuarioEvento.login,
+            ativo: false,
+        };
+
+        const { status, resposta } = await this.usuarioService.remover(usuarioRemocao);
         return res.status(status).send(resposta);
     };
 

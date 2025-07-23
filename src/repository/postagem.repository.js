@@ -58,7 +58,7 @@ export class PostagemRepository {
 
         return {
             possuiResultado: resultado.length > 0,
-            resultado: resultado,
+            resultado: filtros.id ? resultado[0] : resultado,
         };
     };
 

@@ -11,7 +11,6 @@ export const validaToken = async (req, res, next) => {
     }
 
     try {
-        console.log(token);
         const usuario = jwt.verify(token, process.env.JWT_SECRET);
 
         if (!usuario || !usuario.categoria) {

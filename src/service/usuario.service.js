@@ -44,16 +44,17 @@ export class UsuarioService {
                 };
             }
 
-            const { possuiResultado: emailJaCadastrado } = await this.usuarioRepository.buscarUsuarios({
+            const { possuiResultado: dadosJaCadastrados } = await this.usuarioRepository.buscarUsuarios({
                 email: usuario.email,
-                emailIgual: true,
+                login: usuario.login,
+                validarUnique: true,
             });
 
-            if (emailJaCadastrado) {
+            if (dadosJaCadastrados) {
                 return {
                     status: 400,
                     resposta: {
-                        mensagem: `Email: ${usuario.email} já cadastrado no sistema`,
+                        mensagem: `Email: ${usuario.email} ou Login: ${usuario.login} já cadastrado no sistema`,
                     },
                 };
             }
@@ -117,10 +118,10 @@ export class UsuarioService {
         }
     }
 
-    remover = async (id) => {
+    remover = async (usuarioRemocao) => {
         try {
             const { possuiResultado: usuarioEncontrado } = await this.usuarioRepository.buscarUsuarios({
-                id: id,
+                id: usuarioRemocao.id,
             });
 
             if (!usuarioEncontrado) {
@@ -132,7 +133,7 @@ export class UsuarioService {
                 };
             }
 
-            const usuarioRemovido = await this.usuarioRepository.removerUsuario(id);
+            const usuarioRemovido = await this.usuarioRepository.editarUsuario(usuarioRemocao);
 
             return {
                 status: usuarioRemovido ? 200 : 500,
@@ -154,14 +155,14 @@ export class UsuarioService {
 
     logarUsuario = async (autenticacaoBase64) => {
         try {
-            const [email, senha] = Buffer.from(autenticacaoBase64.replace('Basic', ''), 'base64').toString('utf-8').split(':');
-            console.log('[USUARIO SERVICE] Tentativa de login e-mail: ', email);
+            const [login, senha] = Buffer.from(autenticacaoBase64.replace('Basic', ''), 'base64').toString('utf-8').split(':');
+            console.log('[USUARIO SERVICE] Tentativa de login: ', login);
 
             const { possuiResultado: usuarioEncontrado, resultado: hashSenha }
-                = await this.usuarioRepository.buscarSenhaUsuarioPorEmail(email);
+                = await this.usuarioRepository.buscarSenhaPorLogin(login);
 
             if (!usuarioEncontrado) {
-                console.log(`[USUARIO SERVICE] E-mail: ${email} nao foi encontrado`);
+                console.log(`[USUARIO SERVICE] Login: ${login} nao foi encontrado`);
                 return {
                     status: 401,
                     resposta: {
@@ -173,7 +174,7 @@ export class UsuarioService {
             const senhaCorreta = await bcryptjs.compare(senha, hashSenha);
 
             if (!senhaCorreta) {
-                console.log(`[USUARIO SERVICE] Senha invalida com e-mail: ${email}`);
+                console.log(`[USUARIO SERVICE] Senha invalida com o login: ${login}`);
                 return {
                     status: 401,
                     resposta: {
@@ -183,12 +184,14 @@ export class UsuarioService {
             }
 
             const { resultado: usuario } = await this.usuarioRepository.buscarUsuarios({
-                email: email,
-                emailIgual: true,
+                login: login,
             });
+
+            console.log(usuario);
 
             const token = jwt.sign({ 
                 id: usuario.id,
+                login: usuario.login,
                 categoria: {
                     id: usuario.categoria.id,
                     nome: usuario.categoria.nome,

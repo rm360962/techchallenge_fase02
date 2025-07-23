@@ -16,6 +16,11 @@ export const validarCadastro = () => {
         .exists()
         .isString()
         .isLength({ min: 1, max: 100}),
+        body('login', 'O campo login é obrigatório').exists(),
+        body('login', 'O campo login deve ser uma string com no mínimo 5 no máximo 25 caracteres')
+        .exists()
+        .isString()
+        .isLength({ min: 5, max: 25}),
         body('senha', 'O campo senha é obrigatório').exists(),
         body('senha', 'O campo senha deve ser uma string e não pode estar vazia')
         .exists()

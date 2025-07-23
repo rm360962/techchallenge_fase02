@@ -9,12 +9,14 @@ export class UsuarioRepository {
         SELECT 
             u.id AS "id",
             u.nome AS "nome",
+            u.login as "login",
             u.email AS "email",
             u.categoria_id AS "categoriaId",
+            u.ativo as "ativo",
             uc.nome AS "categoriaNome",
-            u.data_inclusao AS "dataInclusao",
+            TO_CHAR(u.data_inclusao, 'DD/MM/YYYY') AS "dataInclusao",
             u.usuario_inclusao AS "usuarioInclusao",
-            u.data_alteracao AS "dataAlteracao",
+            TO_CHAR(u.data_alteracao, 'DD/MM/YYYY') AS "dataAlteracao",
             u.usuario_alteracao AS "usuarioAlteracao"
         FROM usuario u
         INNER JOIN usuario_categoria uc ON u.categoria_id = uc.id
@@ -33,14 +35,20 @@ export class UsuarioRepository {
                 valores.push(`%${filtros.nome.toLowerCase()}%`);
             }
 
-            if (filtros.email && !filtros.emailIgual) {
+            if (filtros.email && !filtros.validarUnique) {
                 sql += `AND LOWER(u.email) LIKE $${indiceParametro++}`;
                 valores.push(`%${filtros.email.toLowerCase()}%`);
             }
 
-            if (filtros.email && filtros.emailIgual) {
-                sql += `AND LOWER(u.email) = $${indiceParametro++}`;
+            if(filtros.login && !filtros.validarUnique) {
+                sql += `AND login = $${indiceParametro++}`;
+                valores.push(filtros.login);
+            }
+
+            if (filtros.validarUnique) {
+                sql += `AND LOWER(u.email) = $${indiceParametro++} AND LOWER(login) = $${indiceParametro++}`;
                 valores.push(filtros.email);
+                valores.push(filtros.login);
             }
 
             if (filtros.categoriaId) {
@@ -54,12 +62,14 @@ export class UsuarioRepository {
         const resultadoNormalizado = resultado.map((item) => {
             return {
                 id: item.id,
+                login: item.login,
                 nome: item.nome,
                 email: item.email,
                 categoria: {
                     id: item.categoriaId,
                     nome: item.categoriaNome,
                 },
+                ativo: item.ativo,
                 dataInclusao: item.dataInclusao,
                 dataAlteracao: item.dataAlteracao,
                 usuarioInclusao: item.usuarioInclusao,
@@ -69,7 +79,7 @@ export class UsuarioRepository {
 
         return {
             possuiResultado: resultadoNormalizado.length > 0,
-            resultado: filtros.id || filtros.email != null && resultadoNormalizado.length > 0 ? resultadoNormalizado[0] : resultadoNormalizado,
+            resultado: (filtros.id || filtros.login) != null && resultadoNormalizado.length > 0 ? resultadoNormalizado[0] : resultadoNormalizado,
         };
     }
 
@@ -79,9 +89,11 @@ export class UsuarioRepository {
         INSERT INTO usuario (
             id,
             nome,
+            login,
             email,
             senha,
             categoria_id,
+            ativo,
             data_inclusao,
             usuario_inclusao
         ) VALUES (
@@ -90,13 +102,16 @@ export class UsuarioRepository {
             $2,
             $3,
             $4,
+            $5,
+            true,
             NOW(),
-            $5
+            $6
         ) RETURNING ID;
         `;
 
         const { rows: resultado } = await poolConexoes.query(sql, [
             usuario.nome,
+            usuario.login,
             usuario.email,
             usuario.senha,
             usuario.categoriaId,
@@ -107,48 +122,47 @@ export class UsuarioRepository {
     }
 
     editarUsuario = async (usuario) => {
-        console.log('[USUARIO REPOSITORY] Editando usuario: ', JSON.stringify(usuario));
+        console.log('[USUARIO REPOSITORY] Editando usuario:', JSON.stringify(usuario));
         const sql = `
         UPDATE usuario
         SET
             nome = COALESCE($1, nome),
-            email = COALESCE($2, email),
-            senha = COALESCE($3, senha),
-            categoria_id = COALESCE($4, categoria_id),
+            login = COALESCE($2, login),
+            email = COALESCE($3, email),
+            senha = COALESCE($4, senha),
+            categoria_id = COALESCE($5, categoria_id),
+            ativo = COALESCE($6, ativo),
             data_alteracao = NOW(),
-            usuario_alteracao = COALESCE($5, usuario_alteracao)
-        WHERE id = $6;
+            usuario_alteracao = COALESCE($7, usuario_alteracao)
+        WHERE id = $8;
         `;
 
         const { rowCount } = await poolConexoes.query(sql, [
             usuario.nome ?? null,
+            usuario.login ?? null,
             usuario.email ?? null,
             usuario.senha ?? null,
             usuario.categoriaId ?? null,
-            usuario.usuarioInclusao,
+            usuario.ativo ?? null,
+            usuario.usuarioAlteracao,
             usuario.id,
         ]);
 
         return rowCount > 0;
     }
 
-    removerUsuario = async (id) => {
-        console.log('[USUARIO REPOSITORY] Deletando usuario com id: ', id);
+    buscarSenhaPorLogin = async (login) => {
         const sql = `
-            DELETE FROM usuario WHERE id = $1
+            SELECT 
+                senha 
+            FROM usuario
+            WHERE 1=1
+                AND login = $1
+                AND ativo = true
+            LIMIT 1
         `;
 
-        const { rowCount } = await poolConexoes.query(sql, [id]);
-
-        return rowCount > 0;
-    }
-
-    buscarSenhaUsuarioPorEmail = async (email) => {
-        const sql = `
-            SELECT senha FROM usuario WHERE LOWER(email) = $1
-        `;
-
-        const { rows: resultado } = await poolConexoes.query(sql, [email]);
+        const { rows: resultado } = await poolConexoes.query(sql, [login]);
 
         return {
             possuiResultado: resultado.length > 0,

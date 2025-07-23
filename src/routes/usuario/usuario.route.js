@@ -40,4 +40,5 @@ router.delete('/users/:id',
     controller.removerUsuario
 );
 
+
 export default router;
