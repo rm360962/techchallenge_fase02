@@ -47,7 +47,6 @@ export class PostagemService {
     };
 
     cadastrar = async (postagem) => {
-        console.log(postagem);
         try {
             const idCadastrado = await this.postagemRepository.cadastrarPostagem(postagem);
 
@@ -70,13 +69,13 @@ export class PostagemService {
         }
     };
 
-    editar = async (id, postagem) => {
+    editar = async (postagem) => {
         try {
-            const sucesso = await this.postagemRepository.editarPostagem(id, postagem);
+            const postagemEditada = await this.postagemRepository.editarPostagem(postagem);
 
             return {
-                status: 200,
-                resposta: postagem,
+                status: postagemEditada ? 200 : 500,
+                resposta: postagemEditada ? 'Postagem editada com sucesso' : 'Erro ao editar a postagem',
             };
         } catch (erro) {
             console.log('[POSTAGEM SERVICE] Erro ao editar uma postagem', erro);
@@ -92,11 +91,11 @@ export class PostagemService {
 
     remover = async (id) => {
         try {
-            const postagens = await this.postagemRepository.removerPostagem(id);
+            const postagemRemovida = await this.postagemRepository.removerPostagem(id);
 
             return {
-                status: 200,
-                resposta: postagens,
+                status: postagemRemovida ? 200 : 500,
+                resposta: postagemRemovida ? 'Postagem removida com sucesso' : 'Erro ao remover a postagem',
             };
         } catch (erro) {
             console.log('[POSTAGEM SERVICE] Erro ao remover uma postagem', erro);
