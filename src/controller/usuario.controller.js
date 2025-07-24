@@ -3,15 +3,15 @@ import { validationResult } from 'express-validator';
 import { mascaraValidacao } from '../util/mascaraValidacao.js';
 
 export class UsuarioController {
-    
+
     usuarioService = new UsuarioService();
-    
+
     buscarUsuarios = async (req, res) => {
         const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
 
-        if(!errosRequisicao.isEmpty()) {
+        if (!errosRequisicao.isEmpty()) {
             return res.status(422).send({
-                erros: errosRequisicao.array({ onlyFirstError: true})
+                erros: errosRequisicao.array({ onlyFirstError: true })
             });
         }
 
@@ -21,11 +21,11 @@ export class UsuarioController {
     };
 
     cadastrarUsuario = async (req, res) => {
-         const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
+        const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
 
-        if(!errosRequisicao.isEmpty()) {
+        if (!errosRequisicao.isEmpty()) {
             return res.status(422).send({
-                erros: errosRequisicao.array({ onlyFirstError: true})
+                erros: errosRequisicao.array({ onlyFirstError: true })
             });
         }
 
@@ -38,11 +38,11 @@ export class UsuarioController {
     };
 
     editarUsuario = async (req, res) => {
-         const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
+        const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
 
-        if(!errosRequisicao.isEmpty()) {
+        if (!errosRequisicao.isEmpty()) {
             return res.status(422).send({
-                erros: errosRequisicao.array({ onlyFirstError: true})
+                erros: errosRequisicao.array({ onlyFirstError: true })
             });
         }
 
@@ -57,7 +57,7 @@ export class UsuarioController {
     removerUsuario = async (req, res) => {
         const usuarioRemocao = {
             id: parseInt(req.params.id, 10),
-            usuarioAlteracao:  req.headers.usuarioEvento.login,
+            usuarioAlteracao: req.headers.usuarioEvento.login,
             ativo: false,
         };
 
@@ -68,6 +68,6 @@ export class UsuarioController {
     logarUsuario = async (req, res) => {
         const autenticacaoBase64 = req.headers.authorization;
         const { status, resposta } = await this.usuarioService.logarUsuario(autenticacaoBase64);
-        return res.status(status).send(resposta); 
+        return res.status(status).send(resposta);
     };
 }
