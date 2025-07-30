@@ -1,14 +1,14 @@
 import express from "express";
 import { UsuarioController } from '../../controller/usuario.controller.js';
-import { validaToken, validaPermissao } from '../../middleware/validacao.js';
+import { validarPermissao, validarToken } from '../../middleware/validacao.js';
 import { validarBusca, validarCadastro, validarEdicao } from './usuario.validation.js';
 const router = express.Router();
 const controller = new UsuarioController();
 
 router.get(
     '/users', 
-    validaToken, 
-    validaPermissao,
+	validarToken,
+	validarPermissao('buscar_usuario'),
     validarBusca(), 
     controller.buscarUsuarios
 );
@@ -20,23 +20,23 @@ router.get(
 
 router.post(
     '/users', 
-    validaToken, 
-    validaPermissao,
+	validarToken,
+	validarPermissao('cadastrar_usuario'),
     validarCadastro(), 
     controller.cadastrarUsuario
 );
 
 router.put(
     '/users/:id', 
-    validaToken, 
-    validaPermissao,
+	validarToken,
+	validarPermissao('editar_usuario'),
     validarEdicao(), 
     controller.editarUsuario
 );
 
 router.delete('/users/:id', 
-    validaToken, 
-    validaPermissao, 
+	validarToken,
+	validarPermissao('remover_usuario'), 
     controller.removerUsuario
 );
 

@@ -1,7 +1,7 @@
-import { UsuarioRepository } from "../repository/usuario.repository.js";
-import { CategoriaUsuarioRepository } from "../repository/categoria.repository.js";
 import bcryptjs from "bcryptjs";
 import jwt from 'jsonwebtoken';
+import { CategoriaUsuarioRepository } from "../repository/categoria.repository.js";
+import { UsuarioRepository } from "../repository/usuario.repository.js";
 
 export class UsuarioService {
 
@@ -187,15 +187,11 @@ export class UsuarioService {
                 login: login,
             });
 
-            console.log(usuario);
 
             const token = jwt.sign({ 
                 id: usuario.id,
                 login: usuario.login,
-                categoria: {
-                    id: usuario.categoria.id,
-                    nome: usuario.categoria.nome,
-                }, 
+				categoria: usuario.categoria,
             }, process.env.JWT_SECRET);
 
             return {

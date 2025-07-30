@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-export const validaToken = async (req, res, next) => {
+export const validarToken = async (req, res, next) => {
     const token = req.headers.token;
 
     if (!token) {
@@ -23,8 +23,7 @@ export const validaToken = async (req, res, next) => {
         req.headers.usuarioEvento = usuario;
 
         next();
-    } catch (erro) {
-        console.log(erro);
+	} catch (erro) {
         console.log(`[VALIDA TOKEN] Token invalido na requisicao: ${req.path}, body: ${req.body != null ? JSON.stringify(req.body) : ''}, metodo: ${req.method}`);
         return res.status(401).send({
             mensagem: 'Acesso negado',
@@ -32,16 +31,17 @@ export const validaToken = async (req, res, next) => {
     }
 };
 
-export const validaPermissao = async (req, res, next) => {
-    const usuarioEvento = req.headers.usuarioEvento;
+export const validarPermissao = (permissao) => {
+	return async (req, res, next) => {
+		const usuarioEvento = req.headers.usuarioEvento;
 
-    if(usuarioEvento.categoria.nome !== "Professor" && 
-        usuarioEvento.categoria.nome !== 'Administrador') {
-        console.log(`[VALIDA PERMISSAO] Usuario ${usuarioEvento.id} sem permissao de acesso ao recurso ${req.path}, metodo: ${req.method}`);
-        return res.status(401).send({
-            mensagem: 'Acesso negado',
-        });     
-    }
+		if (!usuarioEvento.categoria.permissoes.includes(permissao)) {
+			console.log(`[VALIDA PERMISSAO] Usuario ${usuarioEvento.id} sem permissao de acesso ao recurso ${req.path}, metodo: ${req.method}`);
+			return res.status(401).send({
+				mensagem: 'Acesso negado',
+			});
+		}
 
-    next();
+		next();
+	};
 };

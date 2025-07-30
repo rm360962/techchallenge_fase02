@@ -1,6 +1,6 @@
 import express from "express";
 import { PostagemController } from "../../controller/postagem.controller.js";
-import { validaPermissao, validaToken } from "../../middleware/validacao.js";
+import { validarPermissao, validarToken } from "../../middleware/validacao.js";
 import { validarBusca, validarCadastro, validarEdicao } from './postagem.validation.js';
 
 const router = express.Router();
@@ -8,43 +8,46 @@ const controller = new PostagemController();
 
 router.get(
     '/posts',
-    validaToken,
+	validarToken,
+	validarPermissao('buscar_postagem'),
     controller.buscarPostagens
 );
 
 router.get(
     '/posts/search',
-    validaToken,
+	validarToken,
+	validarPermissao('buscar_postagem'),
     validarBusca(),
     controller.buscarPostagemPorFiltros
 );
 
 router.get(
     '/posts/:id',
-    validaToken, 
+	validarToken,
+	validarPermissao('buscar_postagem'), 
     controller.buscarPostagemPorId
 );
 
 router.post(
     '/posts',
-    validaToken,
-    validaPermissao,
+	validarToken,
+	validarPermissao('cadastrar_postagem'),
     validarCadastro(), 
     controller.criarPostagem
 );
 
 router.put(
     '/posts/:id',
-    validaToken,
-    validaPermissao,
+	validarToken,
+	validarPermissao('editar_postagem'),
     validarEdicao(), 
     controller.editarPostagem
 );
 
 router.delete(
     '/posts/:id', 
-    validaToken,
-    validaPermissao,
+	validarToken,
+	validarPermissao('remover_postagem'),
     controller.removerPostagem
 );
 
