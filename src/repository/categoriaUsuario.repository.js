@@ -8,9 +8,9 @@ export class CategoriaUsuarioRepository {
                 id AS "id",
                 nome AS "nome",
 				permissoes as "permissoes",
-                TO_CHAR(data_inclusao, 'DD/MM/YYYY') AS "data_inclusao",
+                TO_CHAR(data_inclusao, 'DD/MM/YYYY hh24:mi:ss') AS "data_inclusao",
                 usuario_inclusao AS "usuarioInclusao",
-                TO_CHAR(data_alteracao, 'DD/MM/YYYY') AS "data_alteracao",
+                TO_CHAR(data_alteracao, 'DD/MM/YYYY hh24:mi:ss') AS "data_alteracao",
                 usuario_alteracao AS "usuarioAlteracao"
             FROM usuario_categoria
             WHERE 1=1

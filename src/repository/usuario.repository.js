@@ -15,9 +15,9 @@ export class UsuarioRepository {
 			u.categoria_id AS "categoriaId",
 			uc.nome AS "categoriaNome",
 			uc.permissoes as "permissoes",
-            TO_CHAR(u.data_inclusao, 'DD/MM/YYYY') AS "dataInclusao",
+            TO_CHAR(u.data_inclusao, 'DD/MM/YYYY hh24:MM:ss') AS "dataInclusao",
             u.usuario_inclusao AS "usuarioInclusao",
-            TO_CHAR(u.data_alteracao, 'DD/MM/YYYY') AS "dataAlteracao",
+            TO_CHAR(u.data_alteracao, 'DD/MM/YYYY hh24:mi:ss') AS "dataAlteracao",
             u.usuario_alteracao AS "usuarioAlteracao"
         FROM usuario u
         INNER JOIN usuario_categoria uc ON u.categoria_id = uc.id
@@ -86,7 +86,7 @@ export class UsuarioRepository {
     }
 
     cadastrarUsuario = async (usuario) => {
-        console.log('[USUARIO REPOSITORY] Cadastrando usuario: ', JSON.stringify(usuario));
+        console.log('[USUARIO REPOSITORY] Cadastrando usuario:', JSON.stringify(usuario));
         const sql = `
         INSERT INTO usuario (
             id,

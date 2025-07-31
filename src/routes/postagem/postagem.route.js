@@ -10,15 +10,8 @@ router.get(
     '/posts',
 	validarToken,
 	validarPermissao('buscar_postagem'),
+	validarBusca(),
     controller.buscarPostagens
-);
-
-router.get(
-    '/posts/search',
-	validarToken,
-	validarPermissao('buscar_postagem'),
-    validarBusca(),
-    controller.buscarPostagemPorFiltros
 );
 
 router.get(

@@ -7,7 +7,16 @@ export class PostagemController {
     postagemService = new PostagemService();
 
     buscarPostagens = async (req, res) => {
-        const { status, resposta } = await this.postagemService.buscar();
+		const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
+
+        if (!errosRequisicao.isEmpty()) {
+            return res.status(422).send({
+                erros: errosRequisicao.array({ onlyFirstError: true })
+            });
+        }
+		
+		const filtros = req.query;
+        const { status, resposta } = await this.postagemService.buscar(filtros);
         return res.status(status).send(resposta);
     };
 
@@ -28,7 +37,9 @@ export class PostagemController {
         }
 
         const postagem = req.body;
-        postagem.usuarioInclusao = eq.headers.usuarioEvento.login;
+		postagem.usuarioId = req.headers.usuarioEvento.id;
+        postagem.usuarioInclusao = req.headers.usuarioEvento.login;
+
         const { status, resposta } = await this.postagemService.cadastrar(postagem);
         return res.status(status).send(resposta);
     };
@@ -54,19 +65,4 @@ export class PostagemController {
         const { status, resposta } = await this.postagemService.remover(id);
         return res.status(status).send(resposta);
     };
-
-    buscarPostagemPorFiltros = async (req, res) => {
-        const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
-
-        if (!errosRequisicao.isEmpty()) {
-            return res.status(422).send({
-                erros: errosRequisicao.array({ onlyFirstError: true })
-            });
-        }
-
-        const filtros = req.query;
-        const { status, resposta } = await this.postagemService.buscarPorFiltros(filtros);
-        return res.status(status).send(resposta);
-    };
-
 };

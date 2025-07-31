@@ -3,17 +3,18 @@ import { poolConexoes } from "../database/database.js";
 export class PostagemRepository {
 
     buscarPostagens = async (filtros) => {
-        console.log('[POSTAGEM REPOSITORY] Buscando postagens: ', JSON.stringify(filtros));
+		console.log('[POSTAGEM REPOSITORY] Buscando postagens:', JSON.stringify(filtros));
         let sql = `
         SELECT 
             p.id AS "id",
             p.titulo AS "titulo",
             p.descricao AS "descricao",
-            p.usuario_id AS "usuario_id",
-            TO_CHAR(p.data_inclusao, 'DD/MM/YYYY') AS "data_inclusao",
-            p.usuario_inclusao AS "usuario_inclusao",
-            TO_CHAR(p.data_alteracao, 'DD/MM/YYYY') AS "data_alteracao",
-            p.usuario_alteracao AS "usuario_alteracao"
+            p.usuario_id AS "usuarioId",
+			u.nome as "nomeUsuario",
+            TO_CHAR(p.data_inclusao, 'DD/MM/YYYY hh24:mi:ss') AS "dataInclusao",
+            p.usuario_inclusao AS "usuarioInclusao",
+            TO_CHAR(p.data_alteracao, 'DD/MM/YYYY hh24:mi:ss') AS "dataAlteracao",
+            p.usuario_alteracao AS "usuarioAlteracao"
         FROM postagem p
         INNER JOIN usuario u ON u.id = p.usuario_id
         WHERE 1=1
@@ -56,14 +57,29 @@ export class PostagemRepository {
 
         const { rows: resultado } = await poolConexoes.query(sql, valores);
 
-        return {
-            possuiResultado: resultado.length > 0,
-            resultado: filtros.id ? resultado[0] : resultado,
+		const resultadoNormalizado = resultado.map((item) => {
+			return {
+				id: item.id,
+				titulo: item.titulo,
+				descricao: item.descricao,
+				usuario: {
+					id: item.usuarioId,
+					nome: item.nomeUsuario,
+				},
+				dataInclusao: item.dataInclusao,
+				dataAlteracao: item.dataAlteracao,
+				usuarioInclusao: item.usuarioInclusao,
+				usuarioAlteracao: item.usuarioAlteracao,
+			};
+		});
+		return {
+			possuiResultado: resultadoNormalizado.length > 0,
+			resultado: filtros.id ? resultadoNormalizado[0] : resultadoNormalizado,
         };
     };
 
     cadastrarPostagem = async (postagem) => {
-        console.log('[POSTAGEM REPOSITORY] Cadastrando postagem', JSON.stringify(postagem));
+		console.log('[POSTAGEM REPOSITORY] Cadastrando postagem:', JSON.stringify(postagem));
 
         const sql = `
         INSERT INTO POSTAGEM (
@@ -92,6 +108,7 @@ export class PostagemRepository {
     };
 
     editarPostagem = async (postagem) => {
+		console.log('[POSTAGEM REPOSITORY] Editando postagem:', JSON.stringify(postagem));
         const sql = `
         UPDATE POSTAGEM
         SET 
@@ -107,7 +124,7 @@ export class PostagemRepository {
             postagem.titulo ?? null,
             postagem.descricao ?? null,
             postagem.usuarioId ?? null,
-            postagem.usuarioId,
+			postagem.usuarioAlteracao,
             postagem.id
         ]);
 
@@ -115,6 +132,7 @@ export class PostagemRepository {
     };
 
     removerPostagem = async (id) => {
+		console.log('[POSTAGEM REPOSITORY] Deletando postagem:', id);
         const sql = `
             DELETE FROM POSTAGEM WHERE ID = $1
         `;

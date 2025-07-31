@@ -1,6 +1,6 @@
 import bcryptjs from "bcryptjs";
 import jwt from 'jsonwebtoken';
-import { CategoriaUsuarioRepository } from "../repository/categoria.repository.js";
+import { CategoriaUsuarioRepository } from "../repository/categoriaUsuario.repository.js";
 import { UsuarioRepository } from "../repository/usuario.repository.js";
 
 export class UsuarioService {
@@ -97,7 +97,27 @@ export class UsuarioService {
                     },
                 };
             }
+			
+			if(usuario.categoriaId) {
+				const { possuiResultado : categoriaUsuarioEncontrada } = 
+					await this.categoriaUsuarioRepository.buscarCategoriasUsuario({
+						id: usuario.categoriaId,
+					});
+				
+				if(!categoriaUsuarioEncontrada) {
+					return {
+						status: 400,
+						resposta: {
+							mensagem: `Categoria usuário ${usuario.categoriaId} não foi encontrada`
+						},
+					};
+				}
+			}
 
+			if(usuario.senha) {
+				usuario.senha = await this.encriptarSenha(usuario.senha);
+			}
+			
             const usuarioEditado = await this.usuarioRepository.editarUsuario(usuario);
 
             return {
