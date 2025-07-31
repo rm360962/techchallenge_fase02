@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon -r dotenv/config src/index.js"
+    "dev": "nodemon -r dotenv/config src/index.js",
+    "build": "sucrase ./src -d ./dist --transforms flow",
+    "start": "node dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +30,7 @@
   },
   "devDependencies": {
     "dotenv": "^17.1.0",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "sucrase": "^3.35.0"
   }
 }
