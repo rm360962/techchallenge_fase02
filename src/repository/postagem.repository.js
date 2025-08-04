@@ -43,13 +43,13 @@ export class PostagemRepository {
             }
 
             if (filtros.dataInclusaoInicio && !filtros.dataInclusaoFim) {
-                sql += ` AND p.data_inclusao >= $${indiceParametro}`;
+                sql += ` AND date(p.data_inclusao) >= $${indiceParametro}`;
                 valores.push(filtros.dataInclusaoInicio);
             } else if (!filtros.dataInclusaoInicio && filtros.dataInclusaoFim) {
-                sql += ` AND p.data_inclusao <= $${indiceParametro}`;
+                sql += ` AND date(p.data_inclusao) <= $${indiceParametro}`;
                 valores.push(filtros.dataInclusaoFim);
             } else if(filtros.dataInclusaoInicio && filtros.dataInclusaoFim) {
-                sql += ` AND p.data_inclusao BETWEEN $${indiceParametro} AND $${indiceParametro + 1}`;
+                sql += ` AND date(p.data_inclusao) BETWEEN $${indiceParametro} AND $${indiceParametro + 1}`;
                 valores.push(filtros.dataInclusaoInicio);
                 valores.push(filtros.dataInclusaoFim);
             }
