@@ -3,8 +3,10 @@ import { UsuarioRepository } from "../repository/usuario.repository.js";
 
 export class PostagemService {
 
-    postagemRepository = new PostagemRepository();
-	usuarioRepository = new UsuarioRepository();
+	constructor(postagemRepository, usuarioRepository) {
+		this.postagemRepository = postagemRepository ?? new PostagemRepository();
+		this.usuarioRepository = usuarioRepository ?? new UsuarioRepository();
+	}
 
 	buscar = async (filtros) => {
         try {
@@ -134,7 +136,7 @@ export class PostagemService {
 				return {
 					status: 400,
 					resposta: {
-						mensagem: `Postagem ${id} não encontrada`,
+						mensagem: `Postagem ${id} não foi encontrada`,
 					},
 				};
 			}

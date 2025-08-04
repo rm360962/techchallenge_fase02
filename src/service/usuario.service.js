@@ -5,8 +5,10 @@ import { UsuarioRepository } from "../repository/usuario.repository.js";
 
 export class UsuarioService {
 
-    usuarioRepository = new UsuarioRepository();
-    categoriaUsuarioRepository = new CategoriaUsuarioRepository();
+	constructor(usuarioRepository, categoriaUsuarioRepository) {
+		this.usuarioRepository = usuarioRepository ?? new UsuarioRepository();
+		this.categoriaUsuarioRepository = categoriaUsuarioRepository ?? new CategoriaUsuarioRepository();
+	}
 
     buscar = async (filtros) => {
         try {
@@ -81,7 +83,7 @@ export class UsuarioService {
                 }
             };
         }
-    }
+    };
 
     editar = async (usuario) => {
         try {

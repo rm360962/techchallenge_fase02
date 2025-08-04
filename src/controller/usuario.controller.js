@@ -4,7 +4,9 @@ import { mascaraValidacao } from '../util/mascaraValidacao.js';
 
 export class UsuarioController {
 
-    usuarioService = new UsuarioService();
+    constructor(usuarioService) {
+		this.usuarioService = usuarioService ?? new UsuarioService();
+	}
 
     buscarUsuarios = async (req, res) => {
         const errosRequisicao = validationResult(req).formatWith(mascaraValidacao);
@@ -31,8 +33,7 @@ export class UsuarioController {
 
         const usuario = req.body;
         usuario.usuarioInclusao = req.headers.usuarioEvento.login;
-
-        console.log(req.headers);
+		
         const { status, resposta } = await this.usuarioService.cadastrar(usuario);
         return res.status(status).send(resposta);
     };

@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "dev": "nodemon -r dotenv/config src/index.js",
     "build": "sucrase ./src -d ./dist --transforms flow",
     "start": "node dist/index.js"
@@ -31,6 +31,8 @@
   "devDependencies": {
     "dotenv": "^17.1.0",
     "nodemon": "^3.1.10",
-    "sucrase": "^3.35.0"
+    "sucrase": "^3.35.0",
+    "supertest": "^7.1.4",
+    "vitest": "^3.2.4"
   }
 }
