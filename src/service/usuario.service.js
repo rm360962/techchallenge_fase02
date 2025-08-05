@@ -89,6 +89,7 @@ export class UsuarioService {
         try {
             const { possuiResultado: usuarioEncontrado } = await this.usuarioRepository.buscarUsuarios({
                 id: usuario.id,
+                ativo: true,
             });
 
             if (!usuarioEncontrado) {

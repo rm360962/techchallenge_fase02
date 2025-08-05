@@ -56,6 +56,11 @@ export class UsuarioRepository {
                 sql += `AND u.categoria_id = $${indiceParametro++}`;
                 valores.push(filtros.categoriaId);
             }
+
+            if(filtros.ativo) {
+                sql += `AND u.ativo = $${indiceParametro++}`;
+                valores.push(filtros.ativo);
+            }
         }
 
         const { rows: resultado } = await poolConexoes.query(sql, valores);
