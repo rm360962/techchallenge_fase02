@@ -47,7 +47,7 @@ export class UsuarioRepository {
             }
 
             if (filtros.validarUnique) {
-                sql += `AND LOWER(u.email) = $${indiceParametro++} AND LOWER(login) = $${indiceParametro++}`;
+                sql += `AND LOWER(u.email) = $${indiceParametro++} OR LOWER(login) = $${indiceParametro++}`;
                 valores.push(filtros.email);
                 valores.push(filtros.login);
             }
