@@ -133,7 +133,7 @@ describe('UsuarioService', () => {
 
 		const resultado = await usuarioService.editar(usuario);
 
-		expect(usuarioRepositoryMock.buscarUsuarios).toHaveBeenCalledWith({ id: usuario.id });
+		expect(usuarioRepositoryMock.buscarUsuarios).toHaveBeenCalledWith({ id: usuario.id, ativo: true });
 		expect(usuarioRepositoryMock.editarUsuario).toHaveBeenCalledWith(usuario);
 		expect(resultado.status).toBe(200);
 		expect(resultado.resposta).toEqual({
