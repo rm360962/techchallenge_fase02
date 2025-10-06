@@ -88,7 +88,26 @@ export class UsuarioRepository {
             possuiResultado: resultadoNormalizado.length > 0,
             resultado: (filtros.id || filtros.login) != null && resultadoNormalizado.length > 0 ? resultadoNormalizado[0] : resultadoNormalizado,
         };
-    }
+    };
+
+    buscarProfessoresIdNome = async () => {
+        let sql = `
+        SELECT 
+            u.id AS "id",
+            u.nome AS "nome"
+        FROM usuario u
+        WHERE 1=1
+            AND u.categoria_id in (2,3)
+            AND u.ativo = true
+        `;
+
+        const { rows: resultado } = await poolConexoes.query(sql);
+
+        return {
+            possuiResultado: resultado.length > 0,
+            resultado: resultado
+        };
+    };
 
     cadastrarUsuario = async (usuario) => {
         console.log('[USUARIO REPOSITORY] Cadastrando usuario:', JSON.stringify(usuario));

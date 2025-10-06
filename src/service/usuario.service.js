@@ -5,10 +5,10 @@ import { UsuarioRepository } from "../repository/usuario.repository.js";
 
 export class UsuarioService {
 
-	constructor(usuarioRepository, categoriaUsuarioRepository) {
-		this.usuarioRepository = usuarioRepository ?? new UsuarioRepository();
-		this.categoriaUsuarioRepository = categoriaUsuarioRepository ?? new CategoriaUsuarioRepository();
-	}
+    constructor(usuarioRepository, categoriaUsuarioRepository) {
+        this.usuarioRepository = usuarioRepository ?? new UsuarioRepository();
+        this.categoriaUsuarioRepository = categoriaUsuarioRepository ?? new CategoriaUsuarioRepository();
+    }
 
     buscar = async (filtros) => {
         try {
@@ -16,7 +16,7 @@ export class UsuarioService {
 
             return {
                 status: 200,
-                resposta: filtros.id != null ? [usuarios] : usuarios,
+                resposta: !Array.isArray(usuarios) ? [usuarios] : usuarios,
             };
         } catch (erro) {
             console.log('[USUARIO SERVICE] Erro ao buscar o usuario:', erro);
@@ -30,6 +30,25 @@ export class UsuarioService {
         }
     }
 
+    buscarIdNomeProfessores = async () => {
+        try {
+            const { resultado: usuarios } = await this.usuarioRepository.buscarProfessoresIdNome();
+
+            return {
+                status: 200,
+                resposta: usuarios
+            };
+        } catch (erro) {
+            console.log('[USUARIO SERVICE] Erro ao buscar os professores:', erro);
+
+            return {
+                status: 500,
+                resposta: {
+                    mensagem: 'Erro ao buscar os usuario(s)'
+                },
+            };
+        }
+    };
     cadastrar = async (usuario) => {
         try {
             const { possuiResultado: categoriaUsuarioEncontrada } =
@@ -100,27 +119,27 @@ export class UsuarioService {
                     },
                 };
             }
-			
-			if(usuario.categoriaId) {
-				const { possuiResultado : categoriaUsuarioEncontrada } = 
-					await this.categoriaUsuarioRepository.buscarCategoriasUsuario({
-						id: usuario.categoriaId,
-					});
-				
-				if(!categoriaUsuarioEncontrada) {
-					return {
-						status: 400,
-						resposta: {
-							mensagem: `Categoria usuário ${usuario.categoriaId} não foi encontrada`
-						},
-					};
-				}
-			}
 
-			if(usuario.senha) {
-				usuario.senha = await this.encriptarSenha(usuario.senha);
-			}
-			
+            if (usuario.categoriaId) {
+                const { possuiResultado: categoriaUsuarioEncontrada } =
+                    await this.categoriaUsuarioRepository.buscarCategoriasUsuario({
+                        id: usuario.categoriaId,
+                    });
+
+                if (!categoriaUsuarioEncontrada) {
+                    return {
+                        status: 400,
+                        resposta: {
+                            mensagem: `Categoria usuário ${usuario.categoriaId} não foi encontrada`
+                        },
+                    };
+                }
+            }
+
+            if (usuario.senha) {
+                usuario.senha = await this.encriptarSenha(usuario.senha);
+            }
+
             const usuarioEditado = await this.usuarioRepository.editarUsuario(usuario);
 
             return {
@@ -210,11 +229,15 @@ export class UsuarioService {
                 login: login,
             });
 
+            const dataAtualSegundos = Math.floor(Date.now() / 1000);
+            const umaHoraSegundos = 3600;
 
-            const token = jwt.sign({ 
+            const token = jwt.sign({
                 id: usuario.id,
                 login: usuario.login,
-				categoria: usuario.categoria,
+                nome: usuario.nome,
+                categoria: usuario.categoria,
+                exp: dataAtualSegundos + umaHoraSegundos
             }, process.env.JWT_SECRET);
 
             return {

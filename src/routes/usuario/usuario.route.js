@@ -14,6 +14,12 @@ router.get(
 );
 
 router.get(
+    '/users/teachers',
+    validarToken,
+    controller.buscarProfessores,
+);
+
+router.get(
     '/users/login', 
     controller.logarUsuario
 );

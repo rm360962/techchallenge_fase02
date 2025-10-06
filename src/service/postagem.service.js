@@ -10,11 +10,11 @@ export class PostagemService {
 
 	buscar = async (filtros) => {
         try {
-			const { resultado: listaPostagens } = await this.postagemRepository.buscarPostagens(filtros);
+			const { resultado: postagens } = await this.postagemRepository.buscarPostagens(filtros);
 
             return {
                 status: 200,
-                resposta: listaPostagens,
+                resposta: !Array.isArray(postagens) ? [postagens] : postagens,
             };
         } catch (erro) {
             console.log('[POSTAGEM SERVICE] Erro ao buscar as postagens', erro);

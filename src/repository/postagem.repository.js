@@ -74,7 +74,7 @@ export class PostagemRepository {
 		});
 		return {
 			possuiResultado: resultadoNormalizado.length > 0,
-			resultado: filtros.id ? resultadoNormalizado[0] : resultadoNormalizado,
+			resultado: filtros.id && resultadoNormalizado.length > 0 ? resultadoNormalizado[0] : resultadoNormalizado,
         };
     };
 
