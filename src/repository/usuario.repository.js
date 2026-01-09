@@ -28,37 +28,37 @@ export class UsuarioRepository {
         const valores = [];
 
         if (filtros.id) {
-            sql += `AND u.id = $${indiceParametro++}`;
+            sql += `AND u.id = $${indiceParametro++} `;
             valores.push(filtros.id);
         } else {
             if (filtros.nome) {
-                sql += `AND LOWER(u.nome) LIKE $${indiceParametro++}`;
+                sql += `AND LOWER(u.nome) LIKE $${indiceParametro++} `;
                 valores.push(`%${filtros.nome.toLowerCase()}%`);
             }
 
             if (filtros.email && !filtros.validarUnique) {
-                sql += `AND LOWER(u.email) LIKE $${indiceParametro++}`;
+                sql += `AND LOWER(u.email) LIKE $${indiceParametro++} `;
                 valores.push(`%${filtros.email.toLowerCase()}%`);
             }
 
             if(filtros.login && !filtros.validarUnique) {
-                sql += `AND login = $${indiceParametro++}`;
+                sql += `AND login = $${indiceParametro++} `;
                 valores.push(filtros.login);
             }
 
             if (filtros.validarUnique) {
-                sql += `AND LOWER(u.email) = $${indiceParametro++} OR LOWER(login) = $${indiceParametro++}`;
+                sql += `AND LOWER(u.email) = $${indiceParametro++} OR LOWER(login) = $${indiceParametro++} `;
                 valores.push(filtros.email);
                 valores.push(filtros.login);
             }
 
             if (filtros.categoriaId) {
-                sql += `AND u.categoria_id = $${indiceParametro++}`;
+                sql += `AND u.categoria_id = $${indiceParametro++} `;
                 valores.push(filtros.categoriaId);
             }
 
             if(filtros.ativo) {
-                sql += `AND u.ativo = $${indiceParametro++}`;
+                sql += `AND u.ativo = $${indiceParametro++} `;
                 valores.push(filtros.ativo);
             }
         }
